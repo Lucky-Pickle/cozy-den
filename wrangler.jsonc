@@ -13,7 +13,8 @@
   ],
   "env": {
     "staging": {
-      "name": "cozy-den-staging"
+      "name": "cozy-den-staging",
+      "workers_dev": true
     }
   }
 }
