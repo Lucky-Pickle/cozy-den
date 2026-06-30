@@ -294,6 +294,58 @@
   .zen{text-align:center;padding:8px 4px;}
   .zen .q{font:600 22px/1.5 "Nunito";color:#4a3d2e;text-wrap:balance;min-height:120px;display:flex;align-items:center;justify-content:center;font-style:italic;}
   .zen .meta{font:700 12px "Nunito";color:#9a7a5c;letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px;}
+
+  /* ---------- MOBILE: sidebar becomes a hidden bottom drawer ---------- */
+  .drawer-grip{display:none;}
+  #menuFab{display:none;}
+  #menuScrim{display:none;}
+
+  @media (max-width:768px){
+    #app{flex-direction:column;}
+    #stage{flex:1 1 auto;width:100%;height:auto;}
+
+    /* sidebar -> bottom sheet, slid out of view until opened */
+    #sidebar{position:fixed;left:0;right:0;bottom:0;top:auto;width:auto;flex:none;
+      max-height:78vh;border-left:none;border-top:3px solid var(--panel-edge);
+      border-radius:22px 22px 0 0;
+      box-shadow:0 -10px 30px rgba(0,0,0,.42);
+      padding:8px 16px calc(18px + env(safe-area-inset-bottom,0px));
+      gap:12px;
+      transform:translateY(110%);
+      transition:transform .3s cubic-bezier(.2,.9,.3,1);}
+    body.menu-open #sidebar{transform:translateY(0);}
+
+    /* grab handle + close row at top of the sheet */
+    .drawer-grip{display:flex;flex-direction:column;align-items:center;gap:8px;
+      position:sticky;top:0;margin:-8px -16px 0;padding:8px 16px 6px;cursor:pointer;
+      background:linear-gradient(180deg,var(--panel2),rgba(240,167,138,0));z-index:2;}
+    .drawer-grip .bar{width:46px;height:5px;border-radius:3px;background:rgba(90,70,54,.5);}
+
+    /* pills in 2 columns so the sheet stays compact */
+    .pillstack{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+    /* % left-pad so the label always clears the icon as pills widen on tablets */
+    .pill{padding:0 5% 0 34%;}
+    .pill .lbl{font-size:13px;}
+    .hint{display:none;}
+
+    /* floating button to open the menu */
+    #menuFab{display:flex;align-items:center;gap:9px;position:fixed;z-index:5800;
+      right:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));
+      padding:13px 20px 13px 18px;border:none;border-radius:16px;cursor:pointer;
+      font:800 15px "Baloo 2";letter-spacing:.03em;text-transform:uppercase;color:#46382a;
+      background:linear-gradient(180deg,#f7e9cf,var(--cream2));
+      box-shadow:0 0 0 3px var(--wood-dk),inset 0 2px 0 rgba(255,255,255,.7),0 6px 16px rgba(0,0,0,.4);
+      transition:transform .12s ease,opacity .2s ease;}
+    #menuFab:active{transform:translateY(2px);}
+    #menuFab .bars{display:flex;flex-direction:column;gap:4px;}
+    #menuFab .bars i{display:block;width:20px;height:3px;border-radius:2px;background:#46382a;}
+    body.menu-open #menuFab{opacity:0;pointer-events:none;transform:translateY(8px);}
+
+    /* scrim dims the room while the sheet is open + catches outside taps */
+    #menuScrim{display:block;position:fixed;inset:0;z-index:5700;
+      background:rgba(20,16,10,.45);opacity:0;pointer-events:none;transition:opacity .3s ease;}
+    body.menu-open #menuScrim{opacity:1;pointer-events:auto;}
+  }
 </style>
 </head>
 <body>
@@ -311,6 +363,7 @@
   </div>
 
   <aside id="sidebar">
+    <div class="drawer-grip" id="drawerGrip"><span class="bar"></span></div>
     <div class="brand"><span class="dot"></span><b>CozyDen</b></div>
     <div class="topbar">
       <button class="topbtn" id="btnMute"><span class="ic"><img src="assets/icons/mute.png" alt=""></span><span>Mute All</span></button>
@@ -328,6 +381,9 @@
     <div class="hint">Click an activity, tap an object, or click any floor tile — your avatar will wander over.</div>
   </aside>
 </div>
+
+<button id="menuFab" aria-label="Open menu"><span class="bars"><i></i><i></i><i></i></span>Menu</button>
+<div id="menuScrim"></div>
 
 <div id="picker">
   <h4>Choose your avatar</h4>

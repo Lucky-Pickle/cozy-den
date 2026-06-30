@@ -537,7 +537,7 @@ document.querySelectorAll("#sidebar .pill").forEach(p=>p.addEventListener("click
    ===================================================================== */
 const RENDER={};
 const YT="https://www.youtube.com/embed/";
-const VID={ mindful:"inpok4MKVLM", quick:"4pKly2JojMw", pomodoro:"mNvU0NqHmIk", look:"liRbVmWEn-Y" };
+const VID={ mindful:"inpok4MKVLM", quick:"Kvoq4luIYVc", pomodoro:"mNvU0NqHmIk", look:"liRbVmWEn-Y" };
 function ytEmbed(id,extra){return `<div class="videoframe"><iframe src="${YT}${id}?rel=0${extra||""}" title="video" allow="accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture" allowfullscreen></iframe></div>`;}
 
 const STATIONS=[
@@ -580,7 +580,7 @@ RENDER.mindful=(b)=>{
   go.addEventListener("click",()=>on?stop():start());
   actCleanup=()=>{if(iv)clearInterval(iv);};
 };
-RENDER.quick=(b)=>{ b.innerHTML=ytEmbed(VID.quick)+`<div class="note">Placeholder stretch video — swap VID.quick for your own routine.</div>`; };
+RENDER.quick=(b)=>{ b.innerHTML=ytEmbed(VID.quick,"&start=22")+`<div class="note">A few minutes to loosen up — stretch along whenever you need a break.</div>`; };
 function bellChime(){
   try{
     const a=new (window.AudioContext||window.webkitAudioContext)();
@@ -763,3 +763,14 @@ document.addEventListener("click",e=>{
   if(picker.classList.contains("open")&&!picker.contains(e.target)&&!e.target.closest("#btnChar")){
     picker.classList.remove("open");document.getElementById("btnChar").classList.remove("on");}
 });
+
+/* ---------- MOBILE: bottom-sheet menu toggle ---------- */
+(function(){
+  const openMenu =()=>document.body.classList.add("menu-open");
+  const closeMenu=()=>document.body.classList.remove("menu-open");
+  document.getElementById("menuFab").addEventListener("click",openMenu);
+  document.getElementById("drawerGrip").addEventListener("click",closeMenu);
+  document.getElementById("menuScrim").addEventListener("click",closeMenu);
+  /* picking an activity closes the sheet so the room is visible behind the modal */
+  document.querySelectorAll("#sidebar .pill").forEach(p=>p.addEventListener("click",closeMenu));
+})();
