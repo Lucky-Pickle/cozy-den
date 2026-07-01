@@ -572,7 +572,7 @@ RENDER.cosy=(b)=>{
   b.querySelectorAll(".chip").forEach(c=>c.addEventListener("click",()=>{
     radioState.station=+c.dataset.i;b.querySelectorAll(".chip").forEach(x=>x.classList.toggle("sel",x===c));
     tuneRadio();nowp.textContent=STATIONS[radioState.station].name;}));
-  b.querySelector("#vol").addEventListener("input",e=>{radioState.volume=e.target.value/100;applyVolume();});
+  b.querySelector("#vol").addEventListener("input",e=>{radioState.volume=e.target.value/100;applyVolume();saveRadio();});
 };
 RENDER.mindful=(b)=>{
   b.innerHTML=`<div class="breath">
@@ -738,23 +738,44 @@ RENDER.zen=(b)=>{
    ===================================================================== */
 const bgm=document.getElementById("bgm");
 const radioState={playing:false,station:0,volume:0.5,muted:false};
+const RADIO_KEY="cozywork_radio";
+function saveRadio(){
+  try{ localStorage.setItem(RADIO_KEY, JSON.stringify({
+    playing:radioState.playing, station:radioState.station,
+    volume:radioState.volume, muted:radioState.muted,
+    t:bgm.currentTime||0, ts:Date.now()
+  })); }catch(e){}
+}
+function restoreRadio(){
+  try{
+    const raw=localStorage.getItem(RADIO_KEY); if(!raw) return;
+    const s=JSON.parse(raw);
+    radioState.station=s.station||0; radioState.volume=s.volume??0.5;
+    radioState.muted=!!s.muted; radioState.playing=!!s.playing;
+    loadStation(); applyVolume();
+    if(s.t){ bgm.addEventListener("canplay",()=>{ bgm.currentTime=s.t; },{once:true}); }
+    if(radioState.playing) bgm.play().catch(()=>{});
+  }catch(e){}
+}
 function loadStation(){ const s=STATIONS[radioState.station];
   if(bgm.getAttribute("src")!==s.src){ bgm.src=s.src; } }
 function applyVolume(){ bgm.muted=radioState.muted; bgm.volume=radioState.volume; }
 function startRadio(){ loadStation();
-  // hitting Play is an explicit "I want sound" — clear any global mute
   if(radioState.muted){ radioState.muted=false;
     const mb=document.getElementById("btnMute"); if(mb) mb.classList.remove("on"); }
-  applyVolume(); radioState.playing=true; bgm.play().catch(()=>{}); }
-function tuneRadio(){ loadStation(); applyVolume(); if(radioState.playing) bgm.play().catch(()=>{}); }
-function stopRadio(){ radioState.playing=false; bgm.pause(); }
+  applyVolume(); radioState.playing=true; bgm.play().catch(()=>{}); saveRadio(); }
+function tuneRadio(){ loadStation(); applyVolume(); if(radioState.playing) bgm.play().catch(()=>{}); saveRadio(); }
+function stopRadio(){ radioState.playing=false; bgm.pause(); saveRadio(); }
+restoreRadio();
+window.addEventListener("pagehide", saveRadio);
+document.addEventListener("visibilitychange",()=>{ if(document.visibilityState==="hidden") saveRadio(); });
 
 /* =====================================================================
    TOP BAR
    ===================================================================== */
 document.getElementById("btnMute").addEventListener("click",e=>{
   radioState.muted=!radioState.muted;bgm.muted=radioState.muted;
-  e.currentTarget.classList.toggle("on",radioState.muted);applyVolume();
+  e.currentTarget.classList.toggle("on",radioState.muted);applyVolume();saveRadio();
 });
 document.getElementById("btnTheme") && document.getElementById("btnTheme").addEventListener("click",e=>{
   stage.classList.toggle("night");e.currentTarget.classList.toggle("on",stage.classList.contains("night"));

@@ -63,15 +63,33 @@
     display:flex;align-items:center;justify-content:center;
     box-shadow:0 0 0 3px var(--wood-dk),inset 0 2px 0 rgba(255,255,255,.7),0 3px 0 rgba(0,0,0,.18);}
   .cab-head .hic img{width:30px;height:30px;}
-  .cab-titles{display:flex;flex-direction:column;gap:1px;min-width:0;}
   .cab-head h1{margin:0;font:800 21px "Baloo 2";letter-spacing:.05em;text-transform:uppercase;
     text-shadow:0 2px 0 rgba(255,255,255,.45);line-height:1.05;}
-  .cab-brand{display:flex;align-items:center;gap:6px;font:800 11px "Baloo 2";letter-spacing:.12em;
-    text-transform:uppercase;color:#41552f;opacity:.8;}
-  .cab-brand .dot{width:8px;height:8px;border-radius:50%;background:#5a7344;box-shadow:0 0 0 2px rgba(255,255,255,.5);}
-  .cab-head .count{margin-left:auto;font:700 12px "Nunito";color:#3d5033;background:rgba(255,255,255,.4);
-    padding:6px 11px;border-radius:10px;letter-spacing:.03em;}
-  .cab-head .back{margin-left:12px;flex:none;}
+  .cab-head .hic{margin-right:0;}
+  /* center the title group, push back button to far right */
+  .cab-head{justify-content:center;}
+  .cab-head .back{margin-left:auto;}
+
+  /* ---------- MINI PLAYER ---------- */
+  .miniplayer{display:flex;align-items:center;gap:9px;margin-right:auto;
+    background:rgba(255,255,255,.18);border-radius:12px;padding:6px 10px 6px 8px;
+    min-width:0;max-width:200px;}
+  .mp-eq{display:flex;align-items:flex-end;gap:2px;height:16px;width:14px;flex:none;}
+  .mp-eq i{display:block;width:3px;border-radius:2px;background:#31402a;
+    transform-origin:bottom;animation:none;}
+  .miniplayer.playing .mp-eq i:nth-child(1){animation:eq 0.8s ease-in-out infinite;}
+  .miniplayer.playing .mp-eq i:nth-child(2){animation:eq 0.6s ease-in-out 0.2s infinite;}
+  .miniplayer.playing .mp-eq i:nth-child(3){animation:eq 1s ease-in-out 0.1s infinite;}
+  @keyframes eq{0%,100%{height:4px;}50%{height:14px;}}
+  .mp-eq i:nth-child(1){height:8px;} .mp-eq i:nth-child(2){height:14px;} .mp-eq i:nth-child(3){height:6px;}
+  .mp-info{display:flex;flex-direction:column;gap:1px;min-width:0;overflow:hidden;}
+  .mp-label{font:700 9px "Baloo 2";letter-spacing:.1em;text-transform:uppercase;color:#41552f;opacity:.7;}
+  .mp-name{font:700 12px "Nunito";color:#31402a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .mp-btn{flex:none;width:28px;height:28px;border-radius:50%;border:2px solid rgba(0,0,0,.2);
+    background:var(--cream);cursor:pointer;display:flex;align-items:center;justify-content:center;
+    box-shadow:0 2px 0 rgba(0,0,0,.15);transition:.1s;padding:0;}
+  .mp-btn:active{transform:translateY(1px);}
+  .mp-btn svg{width:12px;height:12px;fill:#3f3526;}
   .cab-body{padding:22px;background:
     repeating-linear-gradient(0deg,rgba(154,98,57,.045) 0 2px,transparent 2px 6px),var(--cream);}
 
@@ -142,12 +160,18 @@
 
       <section class="cab">
         <div class="cab-head">
-          <span class="hic"><img src="../assets/icons/brain.png" alt=""></span>
-          <div class="cab-titles">
-            <h1 id="cabTitle">Brain Games</h1>
-            <span class="cab-brand"><span class="dot"></span>CozyWork</span>
+          <div class="miniplayer" id="miniplayer">
+            <div class="mp-eq"><i></i><i></i><i></i></div>
+            <div class="mp-info">
+              <span class="mp-label">Now Playing</span>
+              <span class="mp-name" id="mpName">—</span>
+            </div>
+            <button class="mp-btn" id="mpToggle" aria-label="Play music">
+              <svg viewBox="0 0 12 12"><polygon points="3,1 11,6 3,11"/></svg>
+            </button>
           </div>
-          <span class="count" id="cabCount"></span>
+          <span class="hic"><img src="../assets/icons/brain.png" alt=""></span>
+          <h1 id="cabTitle">Brain Games</h1>
           <a class="back" href="../index.html"><span class="arw">‹</span>Back to Room</a>
         </div>
         <div class="cab-body" id="view"></div>
@@ -171,13 +195,10 @@ const GAMES=[
 
 const view=document.getElementById("view");
 const cabTitle=document.getElementById("cabTitle");
-const cabCount=document.getElementById("cabCount");
 
 /* ---------- Gallery ---------- */
 function gallery(){
   cabTitle.textContent="Brain Games";
-  const live=GAMES.filter(g=>!g.soon).length;
-  cabCount.textContent=live+" game"+(live===1?"":"s")+" · more soon";
   let cards=GAMES.map((g,i)=>`
     <button class="gcard${g.soon?" soon":""}" data-i="${i}"${g.soon?" disabled":""}>
       ${g.builtin?'<span class="badge">Play</span>':""}
@@ -199,7 +220,6 @@ function openGame(i){
 /* ---------- Memory Match ---------- */
 function memoryGame(){
   cabTitle.textContent="Memory Match";
-  cabCount.textContent="";
   const ics=[0,1,2,3,4,5,6,7];
   const deck=ics.concat(ics).map(ic=>({ic})).sort(()=>Math.random()-0.5);
   view.innerHTML=`
@@ -235,6 +255,69 @@ function memoryGame(){
 }
 
 gallery();
+</script>
+
+<audio id="bgm2" loop></audio>
+<script>
+/* ---------- Cross-page mini player ---------- */
+(function(){
+  const RADIO_KEY="cozywork_radio";
+  const STATIONS=[
+    {name:"Forest Chill",          src:"../uploads/lofidreams-forest-chill-lofi-365945.mp3"},
+    {name:"Essence of the Forest", src:"../uploads/purrplecat-essence-of-the-forest-457465.mp3"},
+    {name:"Rainy Day",             src:"../uploads/clavier-music-rainy-day-lofi-guitar-drums-piano-216566.mp3"},
+    {name:"Lo-Fi Rain",            src:"../uploads/saavane-lofi-rain-198277.mp3"},
+    {name:"Damp Earth Zen",        src:"../uploads/cfl_turningpages-damp-earth-zen-lofi-469298.mp3"},
+    {name:"Chillhood",             src:"../uploads/lofium-lofi-relax-chillhood-by-lofium-123327.mp3"}
+  ];
+  const audio=document.getElementById("bgm2");
+  const miniplayer=document.getElementById("miniplayer");
+  const mpName=document.getElementById("mpName");
+  const mpToggle=document.getElementById("mpToggle");
+  const PLAY_SVG='<svg viewBox="0 0 12 12"><polygon points="3,1 11,6 3,11"/></svg>';
+  const PAUSE_SVG='<svg viewBox="0 0 12 12"><rect x="2" y="1" width="3" height="10"/><rect x="7" y="1" width="3" height="10"/></svg>';
+
+  let state={playing:false,station:0,volume:0.5,muted:false};
+
+  function load(){
+    try{ const raw=localStorage.getItem(RADIO_KEY); if(raw) state=JSON.parse(raw); }catch(e){}
+  }
+  function save(){
+    try{ localStorage.setItem(RADIO_KEY, JSON.stringify({
+      ...state, t:audio.currentTime||0, ts:Date.now()
+    })); }catch(e){}
+  }
+  function setUI(){
+    const playing=state.playing && !audio.paused;
+    miniplayer.classList.toggle("playing", playing);
+    mpToggle.innerHTML=playing ? PAUSE_SVG : PLAY_SVG;
+    mpName.textContent=STATIONS[state.station]?.name||"—";
+  }
+
+  load();
+  const st=STATIONS[state.station||0];
+  if(st){
+    audio.src=st.src;
+    audio.volume=state.volume??0.5;
+    audio.muted=!!state.muted;
+    mpName.textContent=st.name;
+    if(state.t){ audio.addEventListener("canplay",()=>{ audio.currentTime=state.t||0; },{once:true}); }
+    if(state.playing){ audio.play().catch(()=>{}); }
+  }
+  audio.addEventListener("play", setUI);
+  audio.addEventListener("pause", setUI);
+
+  mpToggle.addEventListener("click",()=>{
+    if(audio.paused){ audio.play().catch(()=>{}); state.playing=true; }
+    else{ audio.pause(); state.playing=false; }
+    save(); setUI();
+  });
+
+  setInterval(()=>{ if(!audio.paused) save(); }, 4000);
+  window.addEventListener("pagehide", save);
+  document.addEventListener("visibilitychange",()=>{ if(document.visibilityState==="hidden") save(); });
+  setUI();
+})();
 </script>
 </body>
 </html>
