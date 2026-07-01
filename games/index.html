@@ -39,20 +39,15 @@
 
   /* ---------- PAGE GRID: rail | main | rail ---------- */
   .wrap{display:grid;grid-template-columns:minmax(0,180px) minmax(0,1fr) minmax(0,180px);
-    gap:22px;max-width:1360px;margin:0 auto;padding:24px 22px 40px;align-items:start;}
+    gap:22px;max-width:1360px;margin:0 auto;padding:10px 22px 40px;align-items:start;}
   .rail{position:sticky;top:84px;display:flex;flex-direction:column;gap:18px;}
   .main{min-width:0;display:flex;flex-direction:column;gap:20px;}
 
-  /* ---------- AD SLOTS ---------- */
-  .ad{position:relative;display:flex;align-items:center;justify-content:center;text-align:center;
-    color:#8d7c63;background:repeating-linear-gradient(45deg,rgba(154,98,57,.05) 0 10px,rgba(154,98,57,.11) 10px 20px);
-    border:2px dashed #b79a78;border-radius:14px;}
-  .ad::before{content:"Advertisement";position:absolute;top:7px;left:0;right:0;
-    font:700 9px "Nunito";letter-spacing:.18em;text-transform:uppercase;color:#a08a6d;opacity:.85;}
-  .ad .adsize{font:700 12px "Baloo 2";letter-spacing:.05em;color:#9a7a5c;}
-  .ad.leader{height:96px;}                 /* 728×90 leaderboard */
-  .ad.sky{height:600px;}                    /* 160×600 skyscraper  */
-  .ad.native{aspect-ratio:4/3;border-radius:16px;}
+  /* AD SLOTS (blank reserved space — invisible until real content lands) */
+  .ad{position:relative;background:transparent;border:none;box-shadow:none;}
+  .ad.leader{height:96px;}     /* 728×90 leaderboard */
+  .ad.sky{height:600px;}       /* 160×600 skyscraper  */
+  .ad.native{aspect-ratio:4/3;}
 
   /* ---------- CABINET (main game panel) ---------- */
   .cab{background:var(--cream);border:5px solid var(--wood);border-radius:22px;position:relative;overflow:hidden;
@@ -68,10 +63,15 @@
     display:flex;align-items:center;justify-content:center;
     box-shadow:0 0 0 3px var(--wood-dk),inset 0 2px 0 rgba(255,255,255,.7),0 3px 0 rgba(0,0,0,.18);}
   .cab-head .hic img{width:30px;height:30px;}
+  .cab-titles{display:flex;flex-direction:column;gap:1px;min-width:0;}
   .cab-head h1{margin:0;font:800 21px "Baloo 2";letter-spacing:.05em;text-transform:uppercase;
-    text-shadow:0 2px 0 rgba(255,255,255,.45);}
+    text-shadow:0 2px 0 rgba(255,255,255,.45);line-height:1.05;}
+  .cab-brand{display:flex;align-items:center;gap:6px;font:800 11px "Baloo 2";letter-spacing:.12em;
+    text-transform:uppercase;color:#41552f;opacity:.8;}
+  .cab-brand .dot{width:8px;height:8px;border-radius:50%;background:#5a7344;box-shadow:0 0 0 2px rgba(255,255,255,.5);}
   .cab-head .count{margin-left:auto;font:700 12px "Nunito";color:#3d5033;background:rgba(255,255,255,.4);
     padding:6px 11px;border-radius:10px;letter-spacing:.03em;}
+  .cab-head .back{margin-left:12px;flex:none;}
   .cab-body{padding:22px;background:
     repeating-linear-gradient(0deg,rgba(154,98,57,.045) 0 2px,transparent 2px 6px),var(--cream);}
 
@@ -130,29 +130,25 @@
 </style>
 </head>
 <body>
-  <header class="topbar">
-    <div class="brand">
-      <span class="dot"></span><b>CozyWork</b>
-      <span class="sub">Brain Games</span>
-    </div>
-    <a class="back" href="../index.html"><span class="arw">‹</span>Back to Room</a>
-  </header>
-
   <div class="wrap">
     <!-- LEFT AD RAIL -->
     <aside class="rail left">
-      <div class="ad sky"><span class="adsize">160 × 600</span></div>
+      <div class="ad sky"></div>
     </aside>
 
     <!-- MAIN -->
     <main class="main">
-      <div class="ad leader"><span class="adsize">728 × 90</span></div>
+      <div class="ad leader"></div>
 
       <section class="cab">
         <div class="cab-head">
           <span class="hic"><img src="../assets/icons/brain.png" alt=""></span>
-          <h1 id="cabTitle">Brain Games</h1>
+          <div class="cab-titles">
+            <h1 id="cabTitle">Brain Games</h1>
+            <span class="cab-brand"><span class="dot"></span>CozyWork</span>
+          </div>
           <span class="count" id="cabCount"></span>
+          <a class="back" href="../index.html"><span class="arw">‹</span>Back to Room</a>
         </div>
         <div class="cab-body" id="view"></div>
       </section>
@@ -160,7 +156,7 @@
 
     <!-- RIGHT AD RAIL -->
     <aside class="rail right">
-      <div class="ad sky"><span class="adsize">160 × 600</span></div>
+      <div class="ad sky"></div>
     </aside>
   </div>
 
