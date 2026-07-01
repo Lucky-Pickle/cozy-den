@@ -190,8 +190,6 @@ function gallery(){
       <div class="gname">${g.name}</div>
       <div class="gtag">${g.tag}</div>
     </button>`);
-  /* native in-grid ad slot */
-  cards.splice(2,0,`<div class="ad native"><span class="adsize">Native ad</span></div>`);
   view.innerHTML=`<div class="games">${cards.join("")}</div>`;
   view.querySelectorAll(".gcard:not(.soon)").forEach(c=>
     c.addEventListener("click",()=>openGame(+c.dataset.i)));
