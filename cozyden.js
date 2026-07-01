@@ -448,12 +448,14 @@ const PAD=92;                                  // small forest gutter (world px)
 const HOUSE={x:108-PAD, w:1104+PAD*2, y:-52, h:968};
 function fit(){
   const W=stage.clientWidth, H=stage.clientHeight;
-  const s=W/HOUSE.w;                            // anchor = house + small gutter -> sliver of forest at the sides
-  const cx=W/2-(HOUSE.x+HOUSE.w/2)*s;
+  const pad = window.innerWidth <= 768 ? -90 : PAD;
+  const hx = 108 - pad, hw = 1104 + pad*2;
+  const s=W/hw;
+  const cx=W/2-(hx+hw/2)*s;
   const scaledH=HOUSE.h*s;
   const cy = scaledH>H
-    ? H-(HOUSE.y+HOUSE.h)*s-28                  // floor near bottom, with a sliver of forest below
-    : H/2-(HOUSE.y+HOUSE.h/2)*s;               // plenty of height -> centre it
+    ? H-(HOUSE.y+HOUSE.h)*s-28
+    : H/2-(HOUSE.y+HOUSE.h/2)*s;
   worldScale.style.transform=`translate(${cx}px,${cy}px) scale(${s})`;
 }
 window.addEventListener("resize",fit);
@@ -499,6 +501,12 @@ function setActivePill(act){
 function trigger(act){
   if(!ACT[act]||moving) return;
   if(act==="pomodoro"){ setActivePill("pomodoro"); returnToDesk(openPomo); return; }
+  if(act==="brain"){
+    setActivePill("brain");
+    const sp=SPOTS.brain;
+    walk(sp.c, sp.r, sp.face, ()=>{ location.href="games/index.html"; });
+    return;
+  }
   setActivePill(act);
   const sp=SPOTS[act];
   if(sp.sit){
@@ -538,7 +546,7 @@ document.querySelectorAll("#sidebar .pill").forEach(p=>p.addEventListener("click
 const RENDER={};
 const YT="https://www.youtube.com/embed/";
 const VID={ mindful:"inpok4MKVLM", quick:"4pKly2JojMw", pomodoro:"mNvU0NqHmIk", look:"liRbVmWEn-Y" };
-function ytEmbed(id,extra){return `<div class="videoframe"><iframe src="${YT}${id}?rel=0${extra||""}" title="video" allow="accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture" allowfullscreen></iframe></div>`;}
+function ytEmbed(id,extra){return `<div class="videoframe"><iframe src="${YT}${id}?rel=0${extra||""}" title="video" allow="accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture;web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe></div>`;}
 
 const STATIONS=[
   {name:"Forest Chill",          src:"uploads/lofidreams-forest-chill-lofi-365945.mp3"},
@@ -580,7 +588,7 @@ RENDER.mindful=(b)=>{
   go.addEventListener("click",()=>on?stop():start());
   actCleanup=()=>{if(iv)clearInterval(iv);};
 };
-RENDER.quick=(b)=>{ b.innerHTML=ytEmbed(VID.quick)+`<div class="note">Placeholder stretch video — swap VID.quick for your own routine.</div>`; };
+RENDER.quick=(b)=>{ b.innerHTML=ytEmbed(VID.quick,"&start=12")+`<div class="note">A few minutes to loosen up — stretch along whenever you need a break.</div>`; };
 function bellChime(){
   try{
     const a=new (window.AudioContext||window.webkitAudioContext)();
@@ -657,9 +665,10 @@ RENDER.look=(b)=>{ b.innerHTML=`<div class="videoframe"><iframe src="https://www
 
 const GAMES=[
   {name:"Memory Match", tag:"Built-in", emoji:"🧠", builtin:true},
-  {name:"Tetris", tag:"Embed", emoji:"🟦", url:"https://tetris.com/play-tetris"},
-  {name:"Sudoku", tag:"Embed", emoji:"🔢", url:"https://sudoku.com/"},
-  {name:"Solitaire", tag:"Embed", emoji:"🃏", url:"https://www.solitr.com/"}
+  // Temporarily removed — don't work well on mobile. Re-add when ready:
+  // {name:"Tetris",    tag:"Embed", emoji:"🟦", url:"https://tetris.com/play-tetris"},
+  // {name:"Sudoku",    tag:"Embed", emoji:"🔢", url:"https://sudoku.com/"},
+  // {name:"Solitaire", tag:"Embed", emoji:"🃏", url:"https://www.solitr.com/"},
 ];
 RENDER.brain=(b)=>{
   function gallery(){

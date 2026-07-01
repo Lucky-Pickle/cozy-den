@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>CozyWork · Brain Games</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#463a2e; --ink-soft:#6b5d49;
+    --panel:#efb59a; --panel2:#f0a78a; --panel-edge:#cf9276;
+    --cream:#f4ede0; --cream2:#ece2c8;
+    --wood:#9a6239; --wood-dk:#5d381f; --wood-lt:#c08a56; --pix-ink:#3a2414;
+    font-family:"Nunito",system-ui,sans-serif;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;min-height:100%;color:var(--ink);
+    background:radial-gradient(120% 90% at 50% 12%,#2c2620 0%,#1d1812 55%,#141009 100%);
+    background-attachment:fixed;}
+
+  /* ---------- TOP BAR ---------- */
+  .topbar{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:14px;
+    padding:12px 20px;background:linear-gradient(180deg,var(--panel2),var(--panel));
+    border-bottom:3px solid var(--panel-edge);box-shadow:0 6px 20px rgba(0,0,0,.34);}
+  .brand{display:flex;align-items:center;gap:9px;}
+  .brand .dot{width:12px;height:12px;border-radius:50%;background:#7fa069;box-shadow:0 0 0 3px rgba(255,255,255,.4);}
+  .brand b{font-family:"Baloo 2";font-weight:800;font-size:22px;color:#5a4636;letter-spacing:.02em;}
+  .brand .sub{font-family:"Baloo 2";font-weight:700;font-size:13px;color:#7a5230;letter-spacing:.1em;
+    text-transform:uppercase;padding-left:11px;margin-left:3px;border-left:2px solid rgba(90,70,54,.3);}
+  .back{margin-left:auto;display:flex;align-items:center;gap:8px;text-decoration:none;
+    padding:10px 16px;border-radius:14px;cursor:pointer;border:none;
+    font:800 13px "Baloo 2";letter-spacing:.04em;text-transform:uppercase;color:#46382a;
+    background:linear-gradient(180deg,#f7e9cf,var(--cream2));
+    box-shadow:0 0 0 3px var(--wood-dk),inset 0 2px 0 rgba(255,255,255,.7),0 3px 0 rgba(0,0,0,.2);transition:.1s;}
+  .back:hover{filter:brightness(1.04);} .back:active{transform:translateY(2px);}
+  .back .arw{font-size:16px;line-height:1;}
+
+  /* ---------- PAGE GRID: rail | main | rail ---------- */
+  .wrap{display:grid;grid-template-columns:minmax(0,180px) minmax(0,1fr) minmax(0,180px);
+    gap:22px;max-width:1360px;margin:0 auto;padding:24px 22px 40px;align-items:start;}
+  .rail{position:sticky;top:84px;display:flex;flex-direction:column;gap:18px;}
+  .main{min-width:0;display:flex;flex-direction:column;gap:20px;}
+
+  /* ---------- AD SLOTS ---------- */
+  .ad{position:relative;display:flex;align-items:center;justify-content:center;text-align:center;
+    color:#8d7c63;background:repeating-linear-gradient(45deg,rgba(154,98,57,.05) 0 10px,rgba(154,98,57,.11) 10px 20px);
+    border:2px dashed #b79a78;border-radius:14px;}
+  .ad::before{content:"Advertisement";position:absolute;top:7px;left:0;right:0;
+    font:700 9px "Nunito";letter-spacing:.18em;text-transform:uppercase;color:#a08a6d;opacity:.85;}
+  .ad .adsize{font:700 12px "Baloo 2";letter-spacing:.05em;color:#9a7a5c;}
+  .ad.leader{height:96px;}                 /* 728×90 leaderboard */
+  .ad.sky{height:600px;}                    /* 160×600 skyscraper  */
+  .ad.native{aspect-ratio:4/3;border-radius:16px;}
+
+  /* ---------- CABINET (main game panel) ---------- */
+  .cab{background:var(--cream);border:5px solid var(--wood);border-radius:22px;position:relative;overflow:hidden;
+    box-shadow:0 0 0 3px var(--wood-dk),0 0 0 8px var(--pix-ink),
+      inset 0 0 0 2px rgba(255,255,255,.35),inset 0 3px 0 var(--wood-lt),0 24px 50px rgba(0,0,0,.5);}
+  .cab::before,.cab::after{content:"";position:absolute;width:9px;height:9px;border-radius:2px;
+    background:var(--wood-lt);box-shadow:inset 0 0 0 2px var(--wood-dk);z-index:3;}
+  .cab::before{top:7px;left:7px;} .cab::after{top:7px;right:7px;}
+  .cab-head{display:flex;align-items:center;gap:13px;padding:15px 18px;background:#a9c79b;color:#31402a;
+    border-bottom:4px solid var(--wood-dk);
+    box-shadow:inset 0 2px 0 rgba(255,255,255,.4),inset 0 -3px 0 rgba(0,0,0,.12);}
+  .cab-head .hic{width:44px;height:44px;flex:none;border-radius:11px;background:var(--cream);
+    display:flex;align-items:center;justify-content:center;
+    box-shadow:0 0 0 3px var(--wood-dk),inset 0 2px 0 rgba(255,255,255,.7),0 3px 0 rgba(0,0,0,.18);}
+  .cab-head .hic img{width:30px;height:30px;}
+  .cab-head h1{margin:0;font:800 21px "Baloo 2";letter-spacing:.05em;text-transform:uppercase;
+    text-shadow:0 2px 0 rgba(255,255,255,.45);}
+  .cab-head .count{margin-left:auto;font:700 12px "Nunito";color:#3d5033;background:rgba(255,255,255,.4);
+    padding:6px 11px;border-radius:10px;letter-spacing:.03em;}
+  .cab-body{padding:22px;background:
+    repeating-linear-gradient(0deg,rgba(154,98,57,.045) 0 2px,transparent 2px 6px),var(--cream);}
+
+  /* ---------- GAMES GRID ---------- */
+  .games{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+  .gcard{border:2px solid var(--ink-soft);border-radius:18px;overflow:hidden;cursor:pointer;background:#efe6d2;
+    display:flex;flex-direction:column;transition:.12s;box-shadow:0 4px 0 rgba(0,0,0,.12);text-align:left;
+    padding:0;font-family:inherit;position:relative;}
+  .gcard:hover{transform:translateY(-3px);box-shadow:0 8px 0 rgba(0,0,0,.12);}
+  .gcard.soon{cursor:default;opacity:.72;}
+  .gcard.soon:hover{transform:none;box-shadow:0 4px 0 rgba(0,0,0,.12);}
+  .gthumb{aspect-ratio:16/10;display:flex;align-items:center;justify-content:center;font-size:52px;
+    background:linear-gradient(135deg,#cdbf9f,#b9c7a6);}
+  .gcard .gname{padding:11px 13px 3px;font:800 15px "Baloo 2";color:#463a2e;letter-spacing:.02em;}
+  .gtag{font:600 11px "Nunito";color:#7a5e49;padding:0 13px 13px;}
+  .badge{position:absolute;top:10px;right:10px;font:800 9px "Baloo 2";letter-spacing:.08em;text-transform:uppercase;
+    padding:5px 9px;border-radius:9px;background:#7fa069;color:#fff;box-shadow:0 2px 0 rgba(0,0,0,.15);}
+  .badge.soon{background:#c9a15f;}
+
+  /* native ad card sits inside the games grid */
+  .games .ad.native{grid-column:span 1;}
+
+  /* ---------- BUTTONS ---------- */
+  .btn{border:2px solid rgba(0,0,0,.16);border-radius:14px;padding:10px 17px;cursor:pointer;
+    font:800 13px/1 "Baloo 2";letter-spacing:.04em;color:#3f3526;background:var(--cream2);
+    box-shadow:0 3px 0 rgba(0,0,0,.15);transition:.1s;text-transform:uppercase;}
+  .btn:hover{filter:brightness(1.04);} .btn:active{transform:translateY(2px);box-shadow:0 1px 0 rgba(0,0,0,.15);}
+  .btn.sm{padding:7px 12px;font-size:12px;}
+
+  /* ---------- MEMORY GAME ---------- */
+  .mem-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;font:700 15px "Nunito";gap:12px;}
+  .mem{display:grid;grid-template-columns:repeat(4,1fr);gap:11px;max-width:440px;margin:0 auto;}
+  .mcard{aspect-ratio:1;border-radius:14px;background:#cdb89a;border:2px solid var(--ink-soft);cursor:pointer;
+    display:flex;align-items:center;justify-content:center;transition:background .12s;overflow:hidden;}
+  .mcard img{width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .12s;pointer-events:none;}
+  .mcard.flip{background:#cfbaa0;} .mcard.flip img{opacity:1;}
+  .mcard.matched{border-color:#7fa069;cursor:default;box-shadow:0 0 0 3px rgba(127,160,105,.5);}
+  .win{text-align:center;font:800 19px "Baloo 2";margin-top:16px;color:#5a7a48;}
+
+  /* ---------- RESPONSIVE ---------- */
+  @media (max-width:1080px){
+    .wrap{grid-template-columns:minmax(0,1fr);gap:18px;}
+    .rail{position:static;flex-direction:row;flex-wrap:wrap;justify-content:center;}
+    .rail .ad.sky{height:96px;flex:1 1 300px;min-width:280px;}  /* skyscrapers become banners */
+    .rail.right{order:5;}
+  }
+  @media (max-width:640px){
+    .topbar{padding:10px 14px;}
+    .brand .sub{display:none;}
+    .wrap{padding:16px 12px 34px;}
+    .cab-body{padding:15px;}
+    .games{grid-template-columns:repeat(2,1fr);gap:12px;}
+    .cab-head h1{font-size:18px;}
+    .mem{gap:8px;}
+  }
+</style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="dot"></span><b>CozyWork</b>
+      <span class="sub">Brain Games</span>
+    </div>
+    <a class="back" href="../CozyDen.html"><span class="arw">‹</span>Back to Room</a>
+  </header>
+
+  <div class="wrap">
+    <!-- LEFT AD RAIL -->
+    <aside class="rail left">
+      <div class="ad sky"><span class="adsize">160 × 600</span></div>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="main">
+      <div class="ad leader"><span class="adsize">728 × 90</span></div>
+
+      <section class="cab">
+        <div class="cab-head">
+          <span class="hic"><img src="../assets/icons/brain.png" alt=""></span>
+          <h1 id="cabTitle">Brain Games</h1>
+          <span class="count" id="cabCount"></span>
+        </div>
+        <div class="cab-body" id="view"></div>
+      </section>
+    </main>
+
+    <!-- RIGHT AD RAIL -->
+    <aside class="rail right">
+      <div class="ad sky"><span class="adsize">160 × 600</span></div>
+    </aside>
+  </div>
+
+<script>
+/* ---------- Game catalogue ---------- */
+const GAMES=[
+  {name:"Memory Match", tag:"Match the pairs — relaxed, no timer.", emoji:"🧠", builtin:true},
+  {name:"Tetris",    tag:"Stack the blocks.",          emoji:"🟦", soon:true},
+  {name:"Sudoku",    tag:"Fill the grid, 1–9.",        emoji:"🔢", soon:true},
+  {name:"Solitaire", tag:"The classic card game.",     emoji:"🃏", soon:true},
+];
+
+const view=document.getElementById("view");
+const cabTitle=document.getElementById("cabTitle");
+const cabCount=document.getElementById("cabCount");
+
+/* ---------- Gallery ---------- */
+function gallery(){
+  cabTitle.textContent="Brain Games";
+  const live=GAMES.filter(g=>!g.soon).length;
+  cabCount.textContent=live+" game"+(live===1?"":"s")+" · more soon";
+  let cards=GAMES.map((g,i)=>`
+    <button class="gcard${g.soon?" soon":""}" data-i="${i}"${g.soon?" disabled":""}>
+      ${g.builtin?'<span class="badge">Play</span>':""}
+      ${g.soon?'<span class="badge soon">Soon</span>':""}
+      <div class="gthumb">${g.emoji}</div>
+      <div class="gname">${g.name}</div>
+      <div class="gtag">${g.tag}</div>
+    </button>`);
+  /* native in-grid ad slot */
+  cards.splice(2,0,`<div class="ad native"><span class="adsize">Native ad</span></div>`);
+  view.innerHTML=`<div class="games">${cards.join("")}</div>`;
+  view.querySelectorAll(".gcard:not(.soon)").forEach(c=>
+    c.addEventListener("click",()=>openGame(+c.dataset.i)));
+}
+
+function openGame(i){
+  const g=GAMES[i];
+  if(g.builtin){memoryGame();return;}
+}
+
+/* ---------- Memory Match ---------- */
+function memoryGame(){
+  cabTitle.textContent="Memory Match";
+  cabCount.textContent="";
+  const ics=[0,1,2,3,4,5,6,7];
+  const deck=ics.concat(ics).map(ic=>({ic})).sort(()=>Math.random()-0.5);
+  view.innerHTML=`
+    <div class="mem-top">
+      <button class="btn sm" id="back">‹ All games</button>
+      <span>Moves: <b id="mv">0</b></span>
+      <button class="btn sm" id="rst">New game</button>
+    </div>
+    <div class="mem" id="mem"></div>
+    <div class="win" id="win" style="display:none">Matched them all! 🌿</div>`;
+  const mem=view.querySelector("#mem"),mv=view.querySelector("#mv"),win=view.querySelector("#win");
+  let first=null,lock=false,moves=0,matched=0;
+  deck.forEach(c=>{
+    const card=document.createElement("div");card.className="mcard";card.dataset.ic=c.ic;
+    card.innerHTML=`<img src="../uploads/mem-tile-${c.ic}.png" alt="">`;
+    card.addEventListener("click",()=>{
+      if(lock||card.classList.contains("flip")||card.classList.contains("matched"))return;
+      card.classList.add("flip");
+      if(!first){first=card;return;}
+      moves++;mv.textContent=moves;
+      if(first.dataset.ic===card.dataset.ic){
+        first.classList.add("matched");card.classList.add("matched");first=null;matched+=2;
+        if(matched===deck.length)win.style.display="block";
+      }else{
+        lock=true;const f=first;first=null;
+        setTimeout(()=>{f.classList.remove("flip");card.classList.remove("flip");lock=false;},650);
+      }
+    });
+    mem.appendChild(card);
+  });
+  view.querySelector("#back").addEventListener("click",gallery);
+  view.querySelector("#rst").addEventListener("click",memoryGame);
+}
+
+gallery();
+</script>
+</body>
+</html>
