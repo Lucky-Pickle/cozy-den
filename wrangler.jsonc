@@ -10,5 +10,11 @@
   },
   "compatibility_flags": [
     "nodejs_compat"
-  ]
+  ],
+  "env": {
+    "staging": {
+      "name": "cozy-den-staging",
+      "workers_dev": true
+    }
+  }
 }
