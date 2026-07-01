@@ -90,6 +90,10 @@
     box-shadow:0 2px 0 rgba(0,0,0,.15);transition:.1s;padding:0;}
   .mp-btn:active{transform:translateY(1px);}
   .mp-btn svg{width:12px;height:12px;fill:#3f3526;}
+  /* pulse when autoplay was blocked and music should be playing */
+  .miniplayer.tap-to-play{animation:mpPulse 1.4s ease-in-out infinite;}
+  .miniplayer.tap-to-play .mp-label{color:#5a7344;}
+  @keyframes mpPulse{0%,100%{box-shadow:0 0 0 0 rgba(90,115,68,.4);}50%{box-shadow:0 0 0 6px rgba(90,115,68,0);}}
   .cab-body{padding:22px;background:
     repeating-linear-gradient(0deg,rgba(154,98,57,.045) 0 2px,transparent 2px 6px),var(--cream);}
 
@@ -290,8 +294,12 @@ gallery();
   function setUI(){
     const playing=state.playing && !audio.paused;
     miniplayer.classList.toggle("playing", playing);
+    miniplayer.classList.toggle("tap-to-play", state.playing && audio.paused);
     mpToggle.innerHTML=playing ? PAUSE_SVG : PLAY_SVG;
-    mpName.textContent=STATIONS[state.station]?.name||"—";
+    mpToggle.setAttribute("aria-label", playing ? "Pause music" : "Play music");
+    mpName.textContent=state.playing && audio.paused
+      ? "Tap to resume"
+      : (STATIONS[state.station]?.name||"—");
   }
 
   load();
@@ -300,9 +308,13 @@ gallery();
     audio.src=st.src;
     audio.volume=state.volume??0.5;
     audio.muted=!!state.muted;
-    mpName.textContent=st.name;
     if(state.t){ audio.addEventListener("canplay",()=>{ audio.currentTime=state.t||0; },{once:true}); }
-    if(state.playing){ audio.play().catch(()=>{}); }
+    if(state.playing){
+      audio.play().catch(()=>{
+        /* autoplay blocked — show tap-to-resume state */
+        setUI();
+      });
+    }
   }
   audio.addEventListener("play", setUI);
   audio.addEventListener("pause", setUI);
@@ -310,6 +322,7 @@ gallery();
   mpToggle.addEventListener("click",()=>{
     if(audio.paused){ audio.play().catch(()=>{}); state.playing=true; }
     else{ audio.pause(); state.playing=false; }
+    miniplayer.classList.remove("tap-to-play");
     save(); setUI();
   });
 
